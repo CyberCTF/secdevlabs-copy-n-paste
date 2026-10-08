@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://www.isoloom.com/schema/v1.json
+# CopyNPaste API (secDevLabs, by Globo.com) as an Isoloom spec: a Go login page with a SQL
+# injection, vendored unchanged in build/api/app/ (the app folder
+# owasp-top10-2021-apps/a3/copy-n-paste of secDevLabs), built by an overlay of upstream's
+# Dockerfile, and its MariaDB machine. `isoloom generate`, then `isoloom up docker`.
+version: 1
+name: secdevlabs-copy-n-paste
+
+networks:
+  lab: { cidr: 10.60.95.0/24, internet: false }
+
+machines:
+  mysqldb:
+    networks: { lab: 20 }
+    services: [{ port: 3306, name: mariadb }]
+    resources: { cpus: 1, memory_mb: 512 }
+    volumes: { data: /var/lib/mysql }
+    docker:
+      build: build/mysqldb
+
+  api:
+    networks: { lab: 10 }
+    services: [{ port: 10001, name: web, http: true, publish: 10001 }]
+    resources: { cpus: 1, memory_mb: 512 }
+    depends_on: [mysqldb]
+    docker:
+      build: build/api
+
+checks:
+  - name: the login page answers
+    http: http://api:10001/
+    wait: 180
+  - name: a quote in the user name breaks the SQL query
+    script: checks/sql-error.sh
+    wait: 60
+
+message: |
+  CopyNPaste answers at http://localhost:{{ machines.api.services.0.publish }}/ (POST /register,
+  POST /login with JSON). Try what the login does with characters SQL cares about.

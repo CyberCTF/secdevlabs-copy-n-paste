@@ -1,0 +1,216 @@
+{
+  "generated_by_isoloom": "from isoloom.yml; don't edit: change the spec and run `isoloom generate` (`isoloom check` fails when this file is out of date)",
+  "resolved_version": 1,
+  "name": "secdevlabs-copy-n-paste",
+  "instance": null,
+  "inputs": [],
+  "networks": {
+    "lab": {
+      "cidr": "10.60.95.0/24",
+      "docker_cidr": "10.60.95.0/24",
+      "internet": false,
+      "gateway": null,
+      "gateway_address": "10.60.95.1",
+      "router": null,
+      "controller": "10.60.95.253"
+    }
+  },
+  "reach": [],
+  "machines": {
+    "mysqldb": {
+      "access": false,
+      "supplied": false,
+      "shapes": [
+        "docker"
+      ],
+      "arch": "amd64",
+      "os": null,
+      "windows": false,
+      "addresses": {
+        "lab": "10.60.95.20"
+      },
+      "docker_addresses": {
+        "lab": "10.60.95.20"
+      },
+      "services": [
+        {
+          "port": 3306,
+          "name": "mariadb",
+          "http": false,
+          "publish": null
+        }
+      ],
+      "depends_on": [],
+      "inputs": [],
+      "volumes": {
+        "data": "/var/lib/mysql"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 512,
+        "disk_gb": 20
+      },
+      "gateway_of": [],
+      "routes": [],
+      "default_gateway": null,
+      "offline": true
+    },
+    "api": {
+      "access": false,
+      "supplied": false,
+      "shapes": [
+        "docker"
+      ],
+      "arch": "amd64",
+      "os": null,
+      "windows": false,
+      "addresses": {
+        "lab": "10.60.95.10"
+      },
+      "docker_addresses": {
+        "lab": "10.60.95.10"
+      },
+      "services": [
+        {
+          "port": 10001,
+          "name": "web",
+          "http": true,
+          "publish": 10001
+        }
+      ],
+      "depends_on": [
+        "mysqldb"
+      ],
+      "inputs": [],
+      "volumes": {},
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 512,
+        "disk_gb": 20
+      },
+      "gateway_of": [],
+      "routes": [],
+      "default_gateway": null,
+      "offline": true
+    }
+  },
+  "start_order": [
+    "mysqldb",
+    "api"
+  ],
+  "clones": {},
+  "tools": {},
+  "groups": {},
+  "router": null,
+  "controller": {
+    "addresses": {
+      "lab": "10.60.95.253"
+    }
+  },
+  "published": [
+    {
+      "machine": "api",
+      "port": 10001,
+      "host_port": 10001
+    }
+  ],
+  "targets": {
+    "possible": [
+      "docker",
+      "hosted",
+      "docker-vm",
+      "cloud-docker",
+      "kubernetes"
+    ],
+    "generated": [
+      "docker",
+      "hosted",
+      "docker-vm",
+      "cloud-docker",
+      "kubernetes"
+    ],
+    "refused": {},
+    "not_possible": {
+      "hybrid": "only when some machines are containers and others are VMs",
+      "vagrant": "needs `vm:` on mysqldb, api",
+      "proxmox": "needs `vm:` on mysqldb, api",
+      "cloud-vm": "needs `vm:` on mysqldb, api",
+      "external": "needs `external:` on mysqldb, api"
+    }
+  },
+  "checks": {
+    "default_position": "networks",
+    "positions": [
+      {
+        "position": "networks",
+        "machine": null,
+        "runner": "isoloom-check",
+        "checks": [
+          {
+            "name": "the login page answers",
+            "derived": false,
+            "kind": "http",
+            "target": "http://api:10001/",
+            "expect": "200",
+            "wait": 180
+          },
+          {
+            "name": "a quote in the user name breaks the SQL query",
+            "derived": false,
+            "kind": "script",
+            "target": "checks/sql-error.sh",
+            "expect": "",
+            "wait": 60
+          }
+        ]
+      },
+      {
+        "position": "mysqldb",
+        "machine": "mysqldb",
+        "runner": "isoloom-check-mysqldb",
+        "checks": [
+          {
+            "name": "api:10001 from mysqldb",
+            "derived": true,
+            "kind": "http",
+            "target": "http://10.60.95.10:10001/",
+            "expect": "any",
+            "wait": 30
+          },
+          {
+            "name": "no internet from mysqldb",
+            "derived": true,
+            "kind": "http",
+            "target": "http://1.1.1.1/",
+            "expect": "blocked",
+            "wait": 0
+          }
+        ]
+      },
+      {
+        "position": "api",
+        "machine": "api",
+        "runner": "isoloom-check-api",
+        "checks": [
+          {
+            "name": "mysqldb:3306 from api",
+            "derived": true,
+            "kind": "tcp",
+            "target": "10.60.95.20:3306",
+            "expect": "open",
+            "wait": 30
+          },
+          {
+            "name": "no internet from api",
+            "derived": true,
+            "kind": "http",
+            "target": "http://1.1.1.1/",
+            "expect": "blocked",
+            "wait": 0
+          }
+        ]
+      }
+    ]
+  },
+  "message": "CopyNPaste answers at http://localhost:10001/ (POST /register,\nPOST /login with JSON). Try what the login does with characters SQL cares about.\n"
+}
