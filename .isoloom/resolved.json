@@ -135,7 +135,8 @@
       "vagrant": "needs `vm:` on mysqldb, api",
       "proxmox": "needs `vm:` on mysqldb, api",
       "cloud-vm": "needs `vm:` on mysqldb, api",
-      "external": "needs `external:` on mysqldb, api"
+      "external": "needs `external:` on mysqldb, api",
+      "cloud-services": "left out by `targets:`"
     }
   },
   "checks": {
