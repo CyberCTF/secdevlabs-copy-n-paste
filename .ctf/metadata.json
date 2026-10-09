@@ -4,10 +4,5 @@
   "question": "Exploit the login's SQL injection to read data from the database, such as its version or the stored password hashes.",
   "category": "WEB",
   "difficulty": 2,
-  "evidence_kind": "SECRET",
-  "capabilities": [
-    "sql-injection",
-    "injection",
-    "mysql"
-  ]
+  "evidence_kind": "SECRET"
 }
