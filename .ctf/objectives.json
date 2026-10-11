@@ -1,0 +1,52 @@
+{
+  "objectives": [
+    {
+      "key": "main",
+      "title": "Read the flag",
+      "prompt": "Read the flags table through the login's SQL injection.",
+      "check": {
+        "evidence": "SECRET",
+        "format": "FLAG{%s}"
+      },
+      "dev": "FLAG{dev-secdevlabs-copy-n-paste}",
+      "hints": [
+        "The user name is concatenated into the login query, and database errors come back to you.",
+        "Read about error-based SQL injection on MySQL/MariaDB."
+      ],
+      "steps": [
+        {
+          "key": "db",
+          "title": "Identify the database",
+          "prompt": "Which database engine backs the API?",
+          "check": {
+            "answer": [
+              "mariadb",
+              "mysql"
+            ]
+          }
+        },
+        {
+          "key": "class",
+          "title": "Name the weakness",
+          "prompt": "What class of vulnerability is this?",
+          "check": {
+            "answer": [
+              "sql injection",
+              "sqli"
+            ]
+          }
+        },
+        {
+          "key": "table",
+          "title": "Find the target",
+          "prompt": "Which table holds the flag?",
+          "check": {
+            "answer": [
+              "flags"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

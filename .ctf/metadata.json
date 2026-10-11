@@ -1,7 +1,7 @@
 {
   "title": "secDevLabs CopyNPaste API",
   "description": "A Go login page and API backed by MariaDB, with register and login routes. The login concatenates the user name into its SQL query and returns database errors to the client.",
-  "question": "Exploit the login's SQL injection to read data from the database, such as its version or the stored password hashes.",
+  "question": "Exploit the login's SQL injection to read the flag from the flags table of the database.",
   "category": "WEB",
   "difficulty": 2,
   "evidence_kind": "SECRET"
