@@ -7,30 +7,39 @@ version: 1
 name: secdevlabs-copy-n-paste
 
 # Given by the CyberCTF launcher: this player's flag. Without it the development flag.
-inputs: [CTF_FLAG_MAIN]
+inputs:
+  CTF_FLAG_MAIN: {}
 
 networks:
-  lab: { cidr: 10.60.95.0/24, internet: false }
+  lab: {cidr: 10.60.95.0/24, internet: false}
 
 machines:
   mysqldb:
-    networks: { lab: 20 }
-    services: [{ port: 3306, name: mariadb }]
-    resources: { cpus: 1, memory_mb: 512 }
-    volumes: { data: /var/lib/mysql }
-    inputs: [CTF_FLAG_MAIN]
-    docker:
+    networks: {lab: 20}
+    resources: {cpus: 1, memory_mb: 512}
+    volumes: {data: /var/lib/mysql}
+    ports:
+      mariadb:
+        port: 3306
+    files:
+      - path: /run/lab/ctf_flag_main
+        input: CTF_FLAG_MAIN
+    setup:
+      - ctf/flag.sh
+    app:
       build: build/mysqldb
-      init: [ctf/flag.sh]
 
   api:
-    networks: { lab: 10 }
-    services: [{ port: 10001, name: web, http: true, publish: 10001 }]
-    resources: { cpus: 1, memory_mb: 512 }
+    networks: {lab: 10}
+    resources: {cpus: 1, memory_mb: 512}
     depends_on: [mysqldb]
-    docker:
+    ports:
+      web:
+        port: 10001
+        protocol: http
+        publish: true
+    app:
       build: build/api
-
 checks:
   - name: the login page answers
     http: http://api:10001/
@@ -40,5 +49,5 @@ checks:
     wait: 60
 
 message: |
-  CopyNPaste answers at http://localhost:{{ machines.api.services.0.publish }}/ (POST /register,
+  CopyNPaste answers at {{ machines.api.ports.web.url }} (POST /register,
   POST /login with JSON). Try what the login does with characters SQL cares about.

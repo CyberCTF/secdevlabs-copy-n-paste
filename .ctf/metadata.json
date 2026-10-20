@@ -1,8 +1,11 @@
 {
+  "project_name": "cyberlabs-secdevlabs-copy-n-paste",
+  "slug": "secdevlabs-copy-n-paste",
   "title": "secDevLabs CopyNPaste API",
   "description": "A Go login page and API backed by MariaDB, with register and login routes. The login concatenates the user name into its SQL query and returns database errors to the client.",
-  "question": "Exploit the login's SQL injection to read the flag from the flags table of the database.",
-  "category": "WEB",
+  "category": "web",
   "difficulty": 2,
-  "evidence_kind": "SECRET"
+  "evidence_kind": "SECRET",
+  "capabilities": [],
+  "question": "Exploit the login's SQL injection to read the flag from the flags table of the database."
 }
